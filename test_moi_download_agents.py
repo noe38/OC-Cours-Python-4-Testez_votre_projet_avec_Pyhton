@@ -22,6 +22,8 @@ def test_http_result(tmpdir, monkeypatch):
 
     script.main(["--dest", str(p), "--count", "1"])
 
-    assert script.get_agents(1) == results
+    local_res = json.load(open(p))
+
+    assert local_res == script.get_agents(1)
 
 # main()
