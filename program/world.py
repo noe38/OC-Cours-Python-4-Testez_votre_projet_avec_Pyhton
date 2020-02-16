@@ -160,6 +160,19 @@ class BaseGraph:
         """Override this method to create different kinds of graphs, such as histograms"""
         plt.plot(x_values, y_values, '.')
 
+    def _stat_by_age(self, zones, property_name): 
+        stat_by_age = defaultdict(float)
+        population_by_age = defaultdict(int)
+
+        for zone in zones:
+            for inhabitant in zone.inhabitants:
+                stat_by_age[inhabitant.age] += getattr(inhabitant, property_name)
+                population_by_age[inhabitant.age] += 1
+
+        x_values = range(0, 100)
+        y_values = [stat_by_age[age] / (population_by_age[age] or 1) for age in range(0, 100)]
+        return x_values, y_values
+
     def xy_values(self, zones):
         """
         Returns:
@@ -201,11 +214,7 @@ class IncomeGraph(BaseGraph):
         self.y_label = "income"
 
     def xy_values(self, zones):
-        a = self.attribute_by_age(zones, 'income')
-
-        x_values = range(0, 100)
-        y_values = [a[0][age] / (a[1][age] or 1) for age in range(0, 100)]
-        return x_values, y_values
+        return self._stat_by_age(zones, "income")
 
 class AgreeablenessPerAgeGraph(BaseGraph):
 
@@ -216,16 +225,7 @@ class AgreeablenessPerAgeGraph(BaseGraph):
         self.y_label = "agreeableness"
 
     def xy_values(self, zones):
-        agreeableness_by_age = defaultdict(float)
-        population_by_age = defaultdict(int)
-        for zone in zones:
-            for inhabitant in zone.inhabitants:
-                agreeableness_by_age[inhabitant.age] += inhabitant.agreeableness
-                population_by_age[inhabitant.age] += 1
-
-        x_values = range(0, 100)
-        y_values = [agreeableness_by_age[age] / (population_by_age[age] or 1) for age in range(0, 100)]
-        return x_values, y_values
+        return self._stat_by_age(zones, "agreeableness")
 
 def main():
     parser = argparse.ArgumentParser("Display population stats")
